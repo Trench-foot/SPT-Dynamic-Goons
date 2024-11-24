@@ -34,7 +34,7 @@ Drag and drop the contents of the zip directly into your SPT install.
 
 - `preventSameMapRotation`: \
   Prevents the Goons from rotating to the same map consecutively.
-  - `true`: The goons will always rotate to a different map.
+  - `true`: The Goons will always rotate to a different map.
   - `false`: The Goons will be able to rotate to the same map they were on previously I.E Customs → Customs.
 - `rotationInterval`: \
   Maximum time (in minutes) the Goons can stay on a map.
