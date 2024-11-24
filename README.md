@@ -47,10 +47,6 @@ On server start, the mod will evaluates whether the Goons should rotate based on
 By default, the Goons will typically stay on a map for roughly 3 hours.
 Rotations only happen at the **server start** or **end of raid**.
 
-## Compatibility 
-Incompatible with:
-- Realism's boss changes
-
 ## Credits
 - Chomp for providing mod examples.
 - SPT Mod Development Channel for their discussions, which helped me a ton during development.
