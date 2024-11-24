@@ -8,6 +8,7 @@ This is a server mod for Single Player Tarkov (SPT) that attempts to simulate th
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Rotation](#rotation)
+- [Compatibility](#compatibility)
 - [Credits](#credits)
 
 ## Features 
@@ -45,6 +46,10 @@ Drag and drop the contents of the zip directly into your SPT install.
 On server start, the mod will evaluates whether the Goons should rotate based on how long they’ve stayed on their current map. The rotation chance increases as they approach their rotation time limit and is capped at 100%. 
 By default, the Goons will typically stay on a map for roughly 3 hours.
 Rotations only happen at the **server start** or **end of raid**.
+
+## Compatibility 
+Incompatible with:
+- Realism's boss changes
 
 ## Credits
 - Chomp for providing mod examples.
