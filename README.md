@@ -50,3 +50,4 @@ Rotations only happen at the **server start** or **end of raid**.
 ## Credits
 - Chomp for providing mod examples.
 - SPT Mod Development Channel for their discussions, which helped me a ton during development.
+- Fika discord user that posted their fix for Fika filtering out modded chat bots
