@@ -15,10 +15,11 @@ export class PatchFikaDialogueController {
     const originalGetFriendList =
       FikaDialogueController.prototype.getFriendList;
 
-    // Override the getFriendList method dynamically
     FikaDialogueController.prototype.getFriendList = function (
       sessionID: string
     ) {
+
+      //I yoinked this from Fika discord btw
       let botsAndFriends = this.dialogController.dialogueChatBots.map((v) =>
         v.getChatBot()
       );
