@@ -28,7 +28,7 @@ Drag and drop the contents of the zip directly into your SPT install.
 {
   "debugLogs": false,
   "preventSameMapRotation": false,
-  "goonsSpawnChance": 35,
+  "goonsSpawnChance": 30,
   "rotationInterval": 180
 }
 ```
