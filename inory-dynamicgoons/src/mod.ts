@@ -15,7 +15,6 @@ import { TrackerCommands } from "./chatbot/TrackerCommands";
 import { GoonsTracker } from "./chatbot/GoonsTracker";
 import { ChatLocationService } from "./services/ChatLocationService";
 import { RotationService } from "./services/RotationService";
-import { PatchFikaDialogueController } from "../src/services/FikaPatch";
 
 class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private logger: ILogger;
@@ -24,7 +23,6 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private maps: ILocations;
   private locationCallbacks: LocationCallbacks;
   private rotationService: RotationService;
-  private patchFikaDialogueController: PatchFikaDialogueController;
   private rotationData = path.resolve(__dirname, "db/rotationData.json");
   private modConfig = require("../config/config.json");
 
@@ -47,35 +45,6 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
     container
       .resolve<DialogueController>("DialogueController")
       .registerChatBot(container.resolve<GoonsTracker>("GoonsTracker"));
-
-    //This patches Fika friendlist filtering out my custom bot
-    if (presptModLoader.getImportedModsNames().includes("fika-server")) {
-      try {
-        const { PatchFikaDialogueController } = await import(
-          "./services/FikaPatch"
-        );
-        container.register<PatchFikaDialogueController>(
-          "PatchFikaDialogueController",
-          {
-            useClass: PatchFikaDialogueController,
-          }
-        );
-
-        this.patchFikaDialogueController = container.resolve(
-          PatchFikaDialogueController
-        );
-        this.patchFikaDialogueController.patchGetFriendList();
-
-        this.logger.log(
-          "[Dynamic Goons] Fika detected, enabling patch...",
-          "yellow"
-        );
-      } catch (error) {
-        this.logger.error(
-          "[Dynamic Goons] Failed to load Fika patch: " + error.message
-        );
-      }
-    }
 
     this.rotationService = new RotationService(
       this.logger,
