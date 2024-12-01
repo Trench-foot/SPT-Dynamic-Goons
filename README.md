@@ -43,9 +43,11 @@ Drag and drop the contents of the zip directly into your SPT install.
 
 ## Rotation
 
-On server start, the mod will evaluates whether the Goons should rotate based on how long they’ve stayed on their current map. The rotation chance increases as they approach their rotation time limit and is capped at 100%. 
-By default, the Goons will typically stay on a map for roughly 3 hours.
-Rotations only happen at the **server start** or **end of raid**.
+In base SPT, the Goons have a static 35% spawn chance per raid on their designated maps. However, this mod implements a rotation mechanic that simulates the Goons traveling through four maps: Customs, Woods, Shoreline, and Lighthouse. By default, the Goons typically stay on a single map for approximately 3 hours. Their spawn chances are adjusted to reflect their current location. For example, if they are on Customs then their spawn chance will be 30% (Configurable) on Customs, and 0% on other maps.
+
+Rotations occur only at server start or after completing a raid. At these points, the mod evaluates whether the Goons should rotate to a new map, with the rotation chance increasing the longer they’ve stayed on their current map. This chance grows over time and is capped at 100%, ensuring they eventually move.
+
+This is meant to simulate their behavior on live EFT.
 
 ## Credits
 - Chomp for providing mod examples.
