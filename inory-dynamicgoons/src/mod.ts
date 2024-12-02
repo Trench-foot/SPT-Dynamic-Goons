@@ -8,7 +8,6 @@ import type { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
 import type { StaticRouterModService } from "@spt/services/mod/staticRouter/StaticRouterModService";
 import type { LocationCallbacks } from "@spt/callbacks/LocationCallback";
 import type { ILocations } from "@spt/models/spt/server/ILocations";
-import type { PreSptModLoader } from "@spt/loaders/PreSptModLoader";
 import { DialogueController } from "@spt/controllers/DialogueController";
 
 import { TrackerCommands } from "./chatbot/TrackerCommands";
@@ -33,8 +32,6 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
     this.locationCallbacks =
       container.resolve<LocationCallbacks>("LocationCallbacks");
 
-    const presptModLoader =
-      container.resolve<PreSptModLoader>("PreSptModLoader");
     container.register("ChatLocationService", {
       useClass: ChatLocationService,
     });
@@ -112,21 +109,21 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
     const mapPool = ["bigmap", "shoreline", "lighthouse", "woods"];
     const bossName = "bossKnight";
     const spawnChance = this.modConfig.goonsSpawnChance;
-  
+
     for (const mapName of mapPool) {
       const mapBosses = this.maps[mapName]?.base?.BossLocationSpawn || [];
-  
+
       for (const mapBoss of mapBosses) {
         if (mapBoss.BossName !== bossName) continue;
-  
+
         if (this.modConfig.debugLogs) {
           this.logger.info(
             `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}`
           );
         }
-  
+
         mapBoss.BossChance = mapName === selectedMap ? spawnChance : 0;
-  
+
         if (this.modConfig.debugLogs) {
           this.logger.info(
             `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}`
@@ -135,7 +132,6 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
       }
     }
   }
-  
 }
 
 export const mod = new Mod();
