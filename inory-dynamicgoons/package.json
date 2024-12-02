@@ -1,7 +1,7 @@
 {
   "name": "Dynamic Goons",
   "version": "1.0.0",
-  "sptVersion": "3.9.X",
+  "sptVersion": "~3.10",
   "loadBefore": [],
   "loadAfter": [],
   "incompatibilities": [],
