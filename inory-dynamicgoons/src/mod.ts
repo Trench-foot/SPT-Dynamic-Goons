@@ -112,26 +112,30 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
     const mapPool = ["bigmap", "shoreline", "lighthouse", "woods"];
     const bossName = "bossKnight";
     const spawnChance = this.modConfig.goonsSpawnChance;
-
+  
     for (const mapName of mapPool) {
       const mapBosses = this.maps[mapName]?.base?.BossLocationSpawn || [];
-
+  
       for (const mapBoss of mapBosses) {
         if (mapBoss.BossName !== bossName) continue;
-
-        const beforeChance = mapBoss.BossChance;
-        const afterChance = mapName === selectedMap ? spawnChance : 0;
-
+  
         if (this.modConfig.debugLogs) {
           this.logger.info(
-            `[Dynamic Goons] ${mapName}: Before Chance: ${beforeChance} After Chance: ${afterChance}`
+            `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}`
           );
         }
-
-        mapBoss.BossChance = afterChance;
+  
+        mapBoss.BossChance = mapName === selectedMap ? spawnChance : 0;
+  
+        if (this.modConfig.debugLogs) {
+          this.logger.info(
+            `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}`
+          );
+        }
       }
     }
   }
+  
 }
 
 export const mod = new Mod();
