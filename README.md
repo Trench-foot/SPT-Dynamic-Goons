@@ -49,6 +49,11 @@ Rotations occur only at server start or after completing a raid. At these points
 
 This is meant to simulate their behavior on live EFT.
 
+> According to the patch notes of patch 0.12.12.30, which introduced the Goon squad, they "do not stay in one location, but wander through them" and "if they are at one location, they will be absent from the others". [Tarkov Wiki](https://escapefromtarkov.fandom.com/wiki/Knight)
+
+## Compatibility 
+Should work out-of-the-box with Questing Bots, as that's the system I've built the mod with in mind. From my limited testing, MOAR should also work without requiring any changes to the load order. However, this mod is not compatible with SWAG. If you want to use this mod with SWAG, you will need to load this mod after SWAG to overwrite their boss spawn changes.
+
 ## Credits
 - Chomp for providing mod examples.
 - SPT Mod Development Channel for their discussions, which helped me a ton during development.
