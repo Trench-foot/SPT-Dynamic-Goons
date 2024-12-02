@@ -19,7 +19,7 @@ export class GoonsTracker extends AbstractDialogueChatBot {
 
   public getChatBot(): IUserDialogInfo {
     return {
-      _id: "goonsTracker",
+      _id: "674d96b02225f02fff47b3be",
       aid: 777,
       Info: {
         Level: 1,
