@@ -187,6 +187,7 @@ export class RotationService {
       "factory4_day",
       "factory4_night",
       "laboratory",
+      "interchange",
     ];
 
     // Combine map pools based on user config
