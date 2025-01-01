@@ -176,11 +176,41 @@ export class RotationService {
   }
 
   private getRandomMap(excludeMap: string | null = null): string {
-    const mapPool = ["bigmap", "shoreline", "lighthouse", "woods"];
+    // Default map pool
+    const defaultMaps = ["bigmap", "shoreline", "lighthouse", "woods"];
+
+    // Additional maps for roaming
+    const additionalMaps = [
+      "tarkovstreets",
+      "rezervbase",
+      "sandbox_high",
+      "factory4_day",
+      "factory4_night",
+      "laboratory",
+    ];
+
+    // Combine map pools based on user config
+    const combinedMaps = this.modConfig.roamAllMaps
+      ? [...defaultMaps, ...additionalMaps]
+      : defaultMaps;
+
+    // Remove duplicate maps (just in case)
+    const uniqueMaps = [...new Set(combinedMaps)];
+
+    // Filter out the excluded map, if any
     const availableMaps = excludeMap
-      ? mapPool.filter((map) => map !== excludeMap)
-      : mapPool;
-    return availableMaps[Math.floor(Math.random() * availableMaps.length)];
+      ? uniqueMaps.filter((map) => map !== excludeMap)
+      : uniqueMaps;
+
+    if (availableMaps.length === 0) {
+      throw new Error("[Dynamic Goons] No available maps to select from.");
+    }
+
+    // Randomly select a map
+    const selectedMap =
+      availableMaps[Math.floor(Math.random() * availableMaps.length)];
+    this.logger.info(`[Dynamic Goons] Selected Map: ${selectedMap}`);
+    return selectedMap;
   }
 
   //This is just for making debugging logs easier to read for me :v

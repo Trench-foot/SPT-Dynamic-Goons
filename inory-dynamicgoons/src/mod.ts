@@ -7,13 +7,14 @@ import type { DatabaseServer } from "@spt/servers/DatabaseServer";
 import type { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
 import type { StaticRouterModService } from "@spt/services/mod/staticRouter/StaticRouterModService";
 import type { LocationCallbacks } from "@spt/callbacks/LocationCallback";
-import type { ILocations } from "@spt/models/spt/server/ILocations";
+import { ILocations } from "@spt/models/spt/server/ILocations";
 import { DialogueController } from "@spt/controllers/DialogueController";
 
 import { TrackerCommands } from "./chatbot/TrackerCommands";
 import { GoonsTracker } from "./chatbot/GoonsTracker";
 import { ChatLocationService } from "./services/ChatLocationService";
 import { RotationService } from "./services/RotationService";
+import { AddBossToAllMaps } from "./services/AddGoonsToAllMaps";
 
 class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private logger: ILogger;
@@ -22,6 +23,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private maps: ILocations;
   private locationCallbacks: LocationCallbacks;
   private rotationService: RotationService;
+  private addBossToAllMaps: AddBossToAllMaps;
   private rotationData = path.resolve(__dirname, "db/rotationData.json");
   private modConfig = require("../config/config.json");
 
@@ -42,6 +44,11 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
     container
       .resolve<DialogueController>("DialogueController")
       .registerChatBot(container.resolve<GoonsTracker>("GoonsTracker"));
+
+    const zonesConfigPath = path.resolve(__dirname, "../config/mapzones.json");
+
+    this.addBossToAllMaps = new AddBossToAllMaps(this.logger, zonesConfigPath);
+    this.addBossToAllMaps.addBossToAllMaps(this.maps);
 
     this.rotationService = new RotationService(
       this.logger,
@@ -106,11 +113,10 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private async updateBossSpawnChances(): Promise<void> {
     const { selectedMap } =
       await this.rotationService.getNextUpdateTimeAndMapData();
-    const mapPool = ["bigmap", "shoreline", "lighthouse", "woods"];
     const bossName = "bossKnight";
     const spawnChance = this.modConfig.goonsSpawnChance;
 
-    for (const mapName of mapPool) {
+    for (const mapName in this.maps) {
       const mapBosses = this.maps[mapName]?.base?.BossLocationSpawn || [];
 
       for (const mapBoss of mapBosses) {

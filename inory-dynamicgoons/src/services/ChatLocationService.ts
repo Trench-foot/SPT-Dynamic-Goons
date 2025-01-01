@@ -28,6 +28,13 @@ export class ChatLocationService {
           woods: "Woods",
           shoreline: "Shoreline",
           lighthouse: "Lighthouse",
+          tarkovstreets: "Streets of Tarkov",
+          interchange: "Interchange",
+          sandbox_high: "Ground Zero",
+          factory4_day: "Factory Day",
+          factory4_night: "Factory Night",
+          laboratory: "The Lab",
+          rezervbase: "Reserve",
         };
 
         const location = locationMap[parsedData.selectedMap.toLowerCase()];
