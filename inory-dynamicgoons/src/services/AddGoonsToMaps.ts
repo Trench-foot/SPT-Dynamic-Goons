@@ -5,7 +5,7 @@ import { ILocation } from "@spt/models/eft/common/ILocation";
 import { IBossLocationSpawn } from "@spt/models/eft/common/ILocationBase";
 
 @injectable()
-export class AddBossToAllMaps {
+export class AddBossToMaps {
   private zonesConfig: Record<string, string[]>;
   private bossData: IBossLocationSpawn;
   private modConfig: any;
@@ -19,7 +19,7 @@ export class AddBossToAllMaps {
     this.modConfig = modConfig;
   }
 
-  public addBossToAllMaps(locationList: Record<string, ILocation>): void {
+  public addBossToMaps(locationList: Record<string, ILocation>): void {
     const bossName = this.bossData.BossName;
 
     for (const mapName in this.zonesConfig) {

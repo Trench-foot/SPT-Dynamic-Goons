@@ -14,7 +14,7 @@ import { TrackerCommands } from "./chatbot/TrackerCommands";
 import { GoonsTracker } from "./chatbot/GoonsTracker";
 import { ChatLocationService } from "./services/ChatLocationService";
 import { RotationService } from "./services/RotationService";
-import { AddBossToAllMaps } from "./services/AddGoonsToAllMaps";
+import { AddBossToMaps } from "./services/AddGoonsToMaps";
 
 class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private logger: ILogger;
@@ -23,7 +23,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private maps: ILocations;
   private locationCallbacks: LocationCallbacks;
   private rotationService: RotationService;
-  private addBossToAllMaps: AddBossToAllMaps;
+  private addBossToAllMaps: AddBossToMaps;
   private rotationData = path.resolve(__dirname, "db/rotationData.json");
   private modConfig = require("../config/config.json");
   private mapConfig = path.resolve(__dirname, "../config/mapConfig.json");
@@ -46,12 +46,12 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
       .resolve<DialogueController>("DialogueController")
       .registerChatBot(container.resolve<GoonsTracker>("GoonsTracker"));
 
-    this.addBossToAllMaps = new AddBossToAllMaps(
+    this.addBossToAllMaps = new AddBossToMaps(
       this.logger,
       this.zonesConfigPath,
       this.modConfig
     );
-    this.addBossToAllMaps.addBossToAllMaps(this.maps);
+    this.addBossToAllMaps.addBossToMaps(this.maps);
 
     this.rotationService = new RotationService(
       this.logger,
