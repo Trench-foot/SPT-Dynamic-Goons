@@ -7,14 +7,16 @@ import { rotationChanceCalculator } from "../services/RotationChanceCalculator";
 export class RotationService {
   private modConfig: any;
   private rotationData: string;
-
+  private mapConfig: any;
   constructor(
     @inject("Logger") private logger: ILogger,
     modConfig: any,
-    rotationDataFilePath: string
+    rotationDataFilePath: string,
+    mapConfig: any
   ) {
     this.modConfig = modConfig;
     this.rotationData = rotationDataFilePath;
+    this.mapConfig = mapConfig;
   }
 
   public async getNextUpdateTimeAndMapData(): Promise<{
@@ -95,7 +97,7 @@ export class RotationService {
     rotationInterval: number
   ): Promise<void> {
     const rotationData = await this.readRotationData();
-    const chosenMap = this.getRandomMap(rotationData.selectedMap);
+    const chosenMap = await this.getRandomMap(rotationData.selectedMap);
 
     const nextUpdateTime = Date.now() + rotationInterval * 60 * 1000;
     const lastUpdateTime = Date.now();
@@ -109,16 +111,15 @@ export class RotationService {
           second: "2-digit",
         }
       );
-      if (this.modConfig.debugLogs) {
-        const remainingTimeFormatted = this.formatTime(
-          nextUpdateTime - Date.now()
-        );
-        this.logger.info(
-          `[Dynamic Goons] Selected Map: ${chosenMap}, Update Scheduled in: ${updateTimeString}, Remaining Time: ${remainingTimeFormatted}, Last Rotation: ${new Date(
-            lastUpdateTime
-          ).toLocaleString()}`
-        );
-      }
+      const remainingTimeFormatted = this.formatTime(
+        nextUpdateTime - Date.now()
+      );
+
+      this.logger.info(
+        `[Dynamic Goons] Selected Map: ${chosenMap}, Update Scheduled in: ${updateTimeString}, Remaining Time: ${remainingTimeFormatted}, Last Rotation: ${new Date(
+          lastUpdateTime
+        ).toLocaleString()}`
+      );
     }
 
     await this.saveNextUpdateTimeAndMapData(
@@ -175,46 +176,49 @@ export class RotationService {
     }
   }
 
-  private getRandomMap(excludeMap: string | null = null): string {
-    // Default map pool
-    const defaultMaps = ["bigmap", "shoreline", "lighthouse", "woods"];
+  private async getEnabledMaps(): Promise<string[]> {
+    try {
+      const data = await fs.promises.readFile(this.mapConfig, "utf8");
+      const json = JSON.parse(data);
 
-    // Additional maps for roaming
-    const additionalMaps = [
-      "tarkovstreets",
-      "rezervbase",
-      "sandbox_high",
-      "factory4_day",
-      "factory4_night",
-      "laboratory",
-      "interchange",
-    ];
+      if (!json || !json.enabledMaps || typeof json.enabledMaps !== "object") {
+        throw new Error("Invalid JSON structure for enabled maps.");
+      }
 
-    // Combine map pools based on user config
-    const combinedMaps = this.modConfig.roamAllMaps
-      ? [...defaultMaps, ...additionalMaps]
-      : defaultMaps;
-
-    // Remove duplicate maps (just in case)
-    const uniqueMaps = [...new Set(combinedMaps)];
-
-    // Filter out the excluded map, if any
-    const availableMaps = excludeMap
-      ? uniqueMaps.filter((map) => map !== excludeMap)
-      : uniqueMaps;
-
-    if (availableMaps.length === 0) {
-      throw new Error("[Dynamic Goons] No available maps to select from.");
+      // Filter only the maps that are set to true
+      return Object.entries(json.enabledMaps)
+        .filter(([_, enabled]) => enabled)
+        .map(([mapName, _]) => mapName);
+    } catch (error) {
+      this.logger.error(
+        `[Dynamic Goons] Error reading enabled maps file: ${error.message}`
+      );
+      // Fallback to default maps if reading fails
+      return ["bigmap", "shoreline", "lighthouse", "woods"];
     }
+  }
+
+  private async getRandomMap(
+    excludeMap: string | null = null
+  ): Promise<string> {
+    const enabledMaps = await this.getEnabledMaps();
+
+    // Filter out the excluded map
+    const availableMaps = excludeMap
+      ? enabledMaps.filter((map) => map !== excludeMap)
+      : enabledMaps;
+
+    // Fallback to default maps if no available maps
+    const defaultFallbackMaps = ["bigmap", "shoreline", "lighthouse", "woods"];
+    const finalMaps =
+      availableMaps.length > 0 ? availableMaps : defaultFallbackMaps;
 
     // Randomly select a map
-    const selectedMap =
-      availableMaps[Math.floor(Math.random() * availableMaps.length)];
-    this.logger.info(`[Dynamic Goons] Selected Map: ${selectedMap}`);
+    const selectedMap = finalMaps[Math.floor(Math.random() * finalMaps.length)];
     return selectedMap;
   }
 
-  //This is just for making debugging logs easier to read for me :v
+  // This is just for making debugging logs easier to read for me :v
   private formatTime(ms: number): string {
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));

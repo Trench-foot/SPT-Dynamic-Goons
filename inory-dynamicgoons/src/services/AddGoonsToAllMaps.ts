@@ -8,11 +8,15 @@ import { IBossLocationSpawn } from "@spt/models/eft/common/ILocationBase";
 export class AddBossToAllMaps {
   private zonesConfig: Record<string, string[]>;
   private bossData: IBossLocationSpawn;
-
-  constructor(private logger: ILogger, private zonesConfigPath: string) {
-    this.logger.info(`[Dynamic Goons] Zones Config Path: ${zonesConfigPath}`);
+  private modConfig: any;
+  constructor(
+    @inject("Logger") private logger: ILogger,
+    private zonesConfigPath: string,
+    modConfig: any
+  ) {
     this.zonesConfig = this.loadZonesConfig();
     this.bossData = this.defineBossData();
+    this.modConfig = modConfig;
   }
 
   public addBossToAllMaps(locationList: Record<string, ILocation>): void {
@@ -21,7 +25,7 @@ export class AddBossToAllMaps {
     for (const mapName in this.zonesConfig) {
       const location = locationList[mapName];
       if (!location) {
-        this.logger.info(
+        this.logger.warning(
           `[Dynamic Goons] Skipping map '${mapName}' as it is not present in the locationList.`
         );
         continue;
@@ -37,9 +41,11 @@ export class AddBossToAllMaps {
         BossZone: combinedZones, // Combine all zones into a single entry
       });
 
-      this.logger.info(
-        `[Dynamic Goons] Added boss '${bossName}' to map '${mapName}' with zones '${combinedZones}'.`
-      );
+      if (this.modConfig.debugLogs) {
+        this.logger.info(
+          `[Dynamic Goons] Added boss '${bossName}' to map '${mapName}' with zones '${combinedZones}'.`
+        );
+      }
     }
   }
 

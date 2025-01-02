@@ -26,7 +26,8 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private addBossToAllMaps: AddBossToAllMaps;
   private rotationData = path.resolve(__dirname, "db/rotationData.json");
   private modConfig = require("../config/config.json");
-
+  private mapConfig = path.resolve(__dirname, "../config/mapConfig.json");
+  private zonesConfigPath = path.resolve(__dirname, "../src/db/mapZones.json");
   private async postDBLoad(container: DependencyContainer): Promise<void> {
     this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
     this.tables = this.databaseServer.getTables();
@@ -45,15 +46,18 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
       .resolve<DialogueController>("DialogueController")
       .registerChatBot(container.resolve<GoonsTracker>("GoonsTracker"));
 
-    const zonesConfigPath = path.resolve(__dirname, "../config/mapzones.json");
-
-    this.addBossToAllMaps = new AddBossToAllMaps(this.logger, zonesConfigPath);
+    this.addBossToAllMaps = new AddBossToAllMaps(
+      this.logger,
+      this.zonesConfigPath,
+      this.modConfig
+    );
     this.addBossToAllMaps.addBossToAllMaps(this.maps);
 
     this.rotationService = new RotationService(
       this.logger,
       this.modConfig,
-      this.rotationData
+      this.rotationData,
+      this.mapConfig
     );
 
     const rotationData = await this.rotationService.readRotationData();
