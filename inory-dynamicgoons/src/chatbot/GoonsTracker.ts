@@ -14,10 +14,6 @@ export class GoonsTracker implements IDialogueChatBot {
     @inject("ChatLocationService") private locationService: ChatLocationService
   ) {}
 
-  public getCommands(): Set<string> {
-    return new Set<string>(["track", "rotation"]);
-  }
-  
   public getChatBot(): IUserDialogInfo {
     return {
       _id: "674d96b02225f02fff47b3be",
