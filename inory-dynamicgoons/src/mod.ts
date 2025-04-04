@@ -1,3 +1,4 @@
+// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
 import * as path from "path";
 import type { DependencyContainer } from "tsyringe";
 import type { ILogger } from "@spt/models/spt/utils/ILogger";
@@ -6,15 +7,17 @@ import type { IPreSptLoadMod } from "@spt/models/external/IPreSptLoadMod";
 import type { DatabaseServer } from "@spt/servers/DatabaseServer";
 import type { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
 import type { StaticRouterModService } from "@spt/services/mod/staticRouter/StaticRouterModService";
-import type { LocationCallbacks } from "@spt/callbacks/LocationCallback";
-import { ILocations } from "@spt/models/spt/server/ILocations";
-import { DialogueController } from "@spt/controllers/DialogueController";
+import type { LocationCallbacks } from "@spt/callbacks/LocationCallbacks";
+import type { ILocations } from "@spt/models/spt/server/ILocations";
+import type { DialogueController } from "@spt/controllers/DialogueController";
 
-import { TrackerCommands } from "./chatbot/TrackerCommands";
 import { GoonsTracker } from "./chatbot/GoonsTracker";
 import { ChatLocationService } from "./services/ChatLocationService";
 import { RotationService } from "./services/RotationService";
 import { AddBossToMaps } from "./services/AddGoonsToMaps";
+import type { ConfigServer } from "@spt/servers/ConfigServer";
+import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
+import type { ICoreConfig } from "@spt/models/spt/config/ICoreConfig";
 
 class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private logger: ILogger;
@@ -28,7 +31,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   private modConfig = require("../config/config.json");
   private mapConfig = path.resolve(__dirname, "../config/mapConfig.json");
   private zonesConfigPath = path.resolve(__dirname, "../src/db/mapZones.json");
-  private async postDBLoad(container: DependencyContainer): Promise<void> {
+  public async postDBLoad(container: DependencyContainer): Promise<void> {
     this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
     this.tables = this.databaseServer.getTables();
     this.maps = this.tables.locations;
@@ -39,19 +42,24 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
       useClass: ChatLocationService,
     });
 
-    container.register<TrackerCommands>("TrackerCommands", TrackerCommands);
     container.register<GoonsTracker>("GoonsTracker", GoonsTracker);
+    const goonsTrackBot = container.resolve<GoonsTracker>("GoonsTracker");
 
     container
       .resolve<DialogueController>("DialogueController")
-      .registerChatBot(container.resolve<GoonsTracker>("GoonsTracker"));
+      .registerChatBot(goonsTrackBot);
+    
+    const coreConfig = container.resolve<ConfigServer>("ConfigServer").getConfig<ICoreConfig>(ConfigTypes.CORE);
+    const goonsTrackBotInfo = goonsTrackBot.getChatBot();
+    coreConfig.features.chatbotFeatures.ids[goonsTrackBotInfo.Info.Nickname] = goonsTrackBotInfo._id;
+    coreConfig.features.chatbotFeatures.enabledBots[goonsTrackBotInfo._id] = true;
 
     this.addBossToAllMaps = new AddBossToMaps(
       this.logger,
       this.zonesConfigPath,
       this.modConfig
     );
-    this.addBossToAllMaps.addBossToMaps(this.maps);
+    this.addBossToAllMaps.addBossToMaps(this.maps.base.locations);
 
     this.rotationService = new RotationService(
       this.logger,
@@ -85,6 +93,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
           url: "/client/locations",
           action: async (
             url: string,
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
             info: any,
             sessionId: string,
             output: string

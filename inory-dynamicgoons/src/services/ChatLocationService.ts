@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { rotationChanceCalculator } from "./RotationChanceCalculator";
 
 @injectable()
@@ -19,8 +19,7 @@ export class ChatLocationService {
       const parsedData = JSON.parse(data);
 
       if (
-        parsedData &&
-        parsedData.selectedMap &&
+        parsedData?.selectedMap &&
         typeof parsedData.lastUpdateTime === "number"
       ) {
         const locationMap: { [key: string]: string } = {
@@ -67,9 +66,8 @@ export class ChatLocationService {
           rotationChance,
           dateLastSeen,
         };
-      } else {
-        throw new Error("Invalid data format in the JSON file.");
       }
+        throw new Error("Invalid data format in the JSON file.");
     } catch (error) {
       console.error("Error reading or parsing the JSON file:", error.message);
       throw new Error(

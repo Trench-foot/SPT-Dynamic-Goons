@@ -1,17 +1,21 @@
-import * as fs from "fs";
-import { ILogger } from "@spt/models/spt/utils/ILogger";
+import * as fs from "node:fs";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
 import { inject, injectable } from "tsyringe";
 import { rotationChanceCalculator } from "../services/RotationChanceCalculator";
 
 @injectable()
 export class RotationService {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private modConfig: any;
   private rotationData: string;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private mapConfig: any;
   constructor(
     @inject("Logger") private logger: ILogger,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     modConfig: any,
     rotationDataFilePath: string,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     mapConfig: any
   ) {
     this.modConfig = modConfig;
@@ -38,6 +42,7 @@ export class RotationService {
   }
 
   public async handleRotationChance(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     rotationData: any,
     currentTime: number,
     rotationInterval: number
@@ -61,7 +66,7 @@ export class RotationService {
     if (rotationData.lastRotationInterval !== this.modConfig.rotationInterval) {
       if (this.modConfig.debugLogs) {
         this.logger.info(
-          `[Dynamic Goons] Rotation interval changed. Rotating now.`
+          "[Dynamic Goons] Rotation interval changed. Rotating now."
         );
       }
       await this.selectRandomMapAndSave(rotationInterval);
@@ -69,7 +74,7 @@ export class RotationService {
 
     if (randomRoll <= rotationChance) {
       if (this.modConfig.debugLogs) {
-        this.logger.info(`[Dynamic Goons] Rotation triggered. Rotating now.`);
+        this.logger.info("[Dynamic Goons] Rotation triggered. Rotating now.");
       }
       await this.selectRandomMapAndSave(rotationInterval);
     }
@@ -82,7 +87,7 @@ export class RotationService {
     if (remainingTime <= 0) return maxChance;
 
     const factor = Math.min(Math.max(remainingTime / maxTime, 0), 1);
-    const chance = maxChance * (1 - Math.pow(factor, 2));
+    const chance = maxChance * (1 - factor ** 2);
 
     if (this.modConfig.debugLogs) {
       this.logger.info(
@@ -150,7 +155,7 @@ export class RotationService {
       );
 
       if (this.modConfig.debugLogs) {
-        this.logger.info(`[Dynamic Goons] Rotation data saved successfully.`);
+        this.logger.info("[Dynamic Goons] Rotation data saved successfully.");
       }
     } catch (error) {
       this.logger.error(
@@ -159,6 +164,7 @@ export class RotationService {
     }
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   public async readRotationData(): Promise<any> {
     try {
       const data = await fs.promises.readFile(this.rotationData, "utf8");

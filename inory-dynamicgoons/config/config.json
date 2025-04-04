@@ -1,6 +1,6 @@
 {
-  "debugLogs": false,
+  "debugLogs": true,
   "preventSameMapRotation": false,
-  "goonsSpawnChance": 30,
+  "goonsSpawnChance": 100,
   "rotationInterval": 180
 }
