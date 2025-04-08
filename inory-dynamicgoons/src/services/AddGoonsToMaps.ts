@@ -1,8 +1,8 @@
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { inject, injectable } from "tsyringe";
-import { ILogger } from "@spt/models/spt/utils/ILogger";
-import { ILocation } from "@spt/models/eft/common/ILocation";
-import { IBossLocationSpawn } from "@spt/models/eft/common/ILocationBase";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
+import type { ILocation } from "@spt/models/eft/common/ILocation";
+import type { IBossLocationSpawn } from "@spt/models/eft/common/ILocationBase";
 
 @injectable()
 export class AddBossToMaps {

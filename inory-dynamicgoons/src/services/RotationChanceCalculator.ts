@@ -1,4 +1,4 @@
-import { ILogger } from "@spt/models/spt/utils/ILogger";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
 
 export function rotationChanceCalculator(
   remainingTime: number,
@@ -15,9 +15,9 @@ export function rotationChanceCalculator(
 
   const factor = remainingTime / maxTime;
 
-  const steepFactor = Math.pow(factor, 0.3); // Adjust the rotation chance curve, smaller exponent, slower the initial rise
+  const steepFactor = factor ** 0.3; // Adjust the rotation chance curve, smaller exponent, slower the initial rise
 
-  const chance = maxChance * (1 - Math.pow(steepFactor, 1));
+  const chance = maxChance * (1 - steepFactor ** 1);
 
   if (debugLogs && logger) {
     logger.info(
