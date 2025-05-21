@@ -155,9 +155,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod
                 if (this.modConfig.debugLogs) 
                 {
                     this.logger.info(
-                        `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}`
-                    );
-                    this.logger.info(
+                        `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}\n` +
                         `[Dynamic Goons] Before Spawn Chance to: ${mapBoss.BossChance}`
                     );
                 }
@@ -167,9 +165,7 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod
                 if (this.modConfig.debugLogs) 
                 {
                     this.logger.info(
-                        `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}`
-                    );
-                    this.logger.info(
+                        `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}\n` +
                         `[Dynamic Goons] Before Spawn Chance to: ${mapBoss.BossChance}`
                     );
                 }
