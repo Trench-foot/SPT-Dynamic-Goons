@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/brace-style */
+/* eslint-disable @typescript-eslint/keyword-spacing */
 import { inject, injectable } from "tsyringe";
 
 import { MemberCategory } from "@spt/models/enums/MemberCategory";
@@ -8,72 +10,94 @@ import type { ISendMessageRequest } from "@spt/models/eft/dialog/ISendMessageReq
 import type { ChatLocationService } from "../services/ChatLocationService";
 
 @injectable()
-export class GoonsTracker implements IDialogueChatBot {
-  constructor(
-    @inject("MailSendService") protected mailSendService: MailSendService,
-    @inject("ChatLocationService") private locationService: ChatLocationService
-  ) {}
+export class GoonsTracker implements IDialogueChatBot 
+{
+    constructor(
+        @inject("MailSendService") protected mailSendService: MailSendService,
+        @inject("ChatLocationService") private locationService: ChatLocationService
+    ) 
+    {}
 
-  public getChatBot(): IUserDialogInfo {
-    return {
-      _id: "674d96b02225f02fff47b3be",
-      aid: 777,
-      Info: {
-        Level: 1,
-        MemberCategory: MemberCategory.SHERPA,
-        SelectedMemberCategory: MemberCategory.SHERPA,
-        Nickname: "Goons Tracker",
-        Side: "Usec",
-      },
-    };
-  }
+    public getChatBot(): IUserDialogInfo 
+    {
+        return {
+            _id: "674d96b02225f02fff47b3be",
+            aid: 777,
+            Info: {
+                Level: 1,
+                MemberCategory: MemberCategory.SHERPA,
+                SelectedMemberCategory: MemberCategory.SHERPA,
+                Nickname: "Goons Tracker",
+                Side: "Usec"
+            }
+        };
+    }
 
-  public handleMessage(sessionId: string, request: ISendMessageRequest): string
-  {
-      if (request.text === "goons track") {
-        try {
-          const locationData = this.locationService.getLocationData();
-  
-          const responseMessage =
-            `Location: ${locationData.location}\n` +
-            `Last Seen: ${locationData.timeSinceLastSeen} minutes ago\n` +
-            `Rotation Chance: ${locationData.rotationChance.toFixed(2)}%\n` +
-            `${locationData.dateLastSeen}`;
-  
-          this.mailSendService.sendUserMessageToPlayer(
-            sessionId,
-            this.getChatBot(),
-            responseMessage
-          );
-        } catch (error) {
-          console.error("Error in handle:", error.message);
-          this.mailSendService.sendUserMessageToPlayer(
-            sessionId,
-            this.getChatBot(),
-            "Error retrieving location data. Please try again later."
-          );
+    public handleMessage(sessionId: string, request: ISendMessageRequest): string
+    {
+        if (request.text === "goons track") 
+        {
+            try 
+            {
+                const locationData = this.locationService.getLocationData();
+                let responseMessage;
+                if(!locationData.dynamicBool)
+                {
+                    responseMessage =
+                    `Location: ${locationData.location}\n` +
+                    `Last Seen: ${locationData.timeSinceLastSeen} minutes ago\n` +
+                    `Rotation Chance: ${locationData.rotationChance.toFixed(2)}%\n` +
+                    `${locationData.dateLastSeen}`;
+                } else
+                {
+                    responseMessage =
+                    `Location: ${locationData.location}\n` +
+                    `Last Seen: ${locationData.timeSinceLastSeen} minutes ago\n` +
+                    `Spawn Chance: ${locationData.spawnChance}%\n` +
+                    `Rotation Chance: ${locationData.rotationChance.toFixed(2)}%\n` +
+                    `${locationData.dateLastSeen}`;
+                }
+
+                this.mailSendService.sendUserMessageToPlayer(
+                    sessionId,
+                    this.getChatBot(),
+                    responseMessage
+                );
+            }
+            catch (error) 
+            {
+                console.error("Error in handle:", error.message);
+                this.mailSendService.sendUserMessageToPlayer(
+                    sessionId,
+                    this.getChatBot(),
+                    "Error retrieving location data. Please try again later."
+                );
+            }
         }
-      } else if (request.text === "goons rotation") {
-        const rotationExplanation =
+        else if (request.text === "goons rotation") 
+        {
+            const rotationExplanation =
           "The Goons stay on a map for a variable amount of time. " +
           "As time passes, the chance of them switching to a new " +
           "map increases. They will rotate to a new map at the end of a raid based on this chance. " +
           "Use goons track to see where they are currently and their rotation chance.";
   
-        this.mailSendService.sendUserMessageToPlayer(
-          sessionId,
-          this.getChatBot(),
-          rotationExplanation
-        );
-      } else {
-        this.mailSendService.sendUserMessageToPlayer(
-          sessionId,
-          this.getChatBot(),
-          "Unrecognized command, please type 'goons track' to receive details of The Goon's location. " +
+            this.mailSendService.sendUserMessageToPlayer(
+                sessionId,
+                this.getChatBot(),
+                rotationExplanation
+            );
+        }
+        else 
+        {
+            this.mailSendService.sendUserMessageToPlayer(
+                sessionId,
+                this.getChatBot(),
+                "Unrecognized command, please type 'goons track' to receive details of The Goon's location. " +
           "Or type 'goons rotation' if you need an explanation for their rotation mechanic."
-        );
-      }
+            );
+        }
   
-      return request.dialogId;
-  }
+        return request.dialogId;
+    }
 }
