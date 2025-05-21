@@ -1,6 +1,8 @@
 {
-    "nextUpdateTime": 1735795717709,
-    "selectedMap": "sandbox_high",
-    "lastRotationInterval": 1,
-    "lastUpdateTime": 1735795657709
+      "nextUpdateTime": 1747818447057,
+      "selectedMap": "woods",
+      "lastRotationInterval": 180,
+      "lastUpdateTime": 1747807647057,
+      "timeOnMap": 2,
+      "dynamicSpawnChance": 31
 }

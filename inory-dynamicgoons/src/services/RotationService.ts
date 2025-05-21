@@ -70,14 +70,37 @@ export class RotationService {
         );
       }
       await this.selectRandomMapAndSave(rotationInterval);
+	  return;
     }
-
+	
+	const nextUpdateTime = rotationData.nextUpdateTime;
+	const chosenMap = rotationData.selectedMap;
+	const lastUpdateTime = rotationData.lastUpdateTime;
+	
     if (randomRoll <= rotationChance) {
       if (this.modConfig.debugLogs) {
         this.logger.info("[Dynamic Goons] Rotation triggered. Rotating now.");
       }
       await this.selectRandomMapAndSave(rotationInterval);
-    }
+    } else
+	  {
+		let mapTime = Math.floor(((Date.now() - rotationData.lastUpdateTime)/600000) + rotationData.timeOnMap);
+		
+		this.logger.info(Date.now());
+		this.logger.info(rotationData.lastUpdateTime);
+		this.logger.info(mapTime);
+		let spawnChance = this.updateSpawnChance(mapTime, rotationData);
+		//this.logger.info(spawnChance);
+		
+		await this.saveNextUpdateTimeAndMapData(
+		nextUpdateTime,
+		chosenMap,
+		rotationInterval,
+		lastUpdateTime,
+		mapTime,
+		spawnChance
+		);
+	  }
   }
 
   public calculateRotationChance(remainingTime: number): number {
@@ -102,7 +125,10 @@ export class RotationService {
     rotationInterval: number
   ): Promise<void> {
     const rotationData = await this.readRotationData();
+	const currentMap = rotationData.selectedMap;
     const chosenMap = await this.getRandomMap(rotationData.selectedMap);
+	const spawnChance = await this.modConfig.goonsSpawnChance;
+	const lingerTime = rotationData.timeOnMap;
 
     const nextUpdateTime = Date.now() + rotationInterval * 60 * 1000;
     const lastUpdateTime = Date.now();
@@ -126,20 +152,38 @@ export class RotationService {
         ).toLocaleString()}`
       );
     }
-
-    await this.saveNextUpdateTimeAndMapData(
-      nextUpdateTime,
-      chosenMap,
-      rotationInterval,
-      lastUpdateTime
-    );
+	
+	// Save spawn chance if the goons stay on the same map
+	if(chosenMap == currentMap)
+	{
+	  await this.saveNextUpdateTimeAndMapData(
+        nextUpdateTime,
+        chosenMap,
+        rotationInterval,
+        lastUpdateTime,
+	    lingerTime,
+	    rotationData.dynamicSpawnChance
+      );
+	}else
+	{
+      await this.saveNextUpdateTimeAndMapData(
+        nextUpdateTime,
+        chosenMap,
+        rotationInterval,
+        lastUpdateTime,
+	    0,
+	    spawnChance
+      );
+	}
   }
 
   private async saveNextUpdateTimeAndMapData(
     nextUpdateTime: number,
     selectedMap: string,
     lastRotationInterval: number,
-    lastUpdateTime: number
+    lastUpdateTime: number,
+	timeOnMap: number,
+	dynamicSpawnChance: number
   ): Promise<void> {
     try {
       const data = {
@@ -147,10 +191,12 @@ export class RotationService {
         selectedMap,
         lastRotationInterval,
         lastUpdateTime,
+		timeOnMap,
+		dynamicSpawnChance,
       };
       await fs.promises.writeFile(
         this.rotationData,
-        JSON.stringify(data, null, 4),
+        JSON.stringify(data, null, 6),
         "utf8"
       );
 
@@ -178,6 +224,8 @@ export class RotationService {
         nextUpdateTime: 0,
         selectedMap: "bigmap",
         lastUpdateTime: 0,
+		timeOnMap: 0,
+		dynamicSpawnChance: 30,
       };
     }
   }
@@ -230,5 +278,40 @@ export class RotationService {
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}h ${minutes}m ${seconds}s`;
+  }
+  
+  // Update spawn chance based on time sense last rotation
+  private updateSpawnChance(rc: number, rotationData: any): Promise<number> {
+	 const defaultSpawn = this.modConfig.goonsSpawnChance;
+	 const changeBool = this.modConfig.dynamicSpawnChance;
+	 const oldLingerTime = rotationData.timeOnMap;
+	 const newLingerTime = rc;
+	 const steepFactor = newLingerTime ** 0.5;  //Attempt to create a spawn chance curve similar to the rotationChanceCalculator
+	 var dynamicSpawn = rotationData.dynamicSpawnChance;
+	 
+	 this.logger.info(steepFactor);
+	 
+	 if(!changeBool)
+	   {
+		 this.logger.info("changeBool");
+		 return defaultSpawn; 
+	   }
+	   
+	 if(newLingerTime === oldLingerTime)
+	   {
+		 this.logger.info("same");
+		 return dynamicSpawn;
+	   }
+	 
+	  dynamicSpawn = defaultSpawn + Math.floor(steepFactor);
+	  if(dynamicSpawn > 100)
+	   {
+		 this.logger.info("greater than 100");
+		 dynamicSpawn = 100;
+		 return dynamicSpawn;
+	   }
+	   this.logger.info(dynamicSpawn);
+	   this.logger.info("normal");
+	   return dynamicSpawn;
   }
 }

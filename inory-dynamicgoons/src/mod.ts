@@ -77,6 +77,9 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
       currentTime,
       rotationInterval
     );
+	
+	// Change spawn chance on server load
+	await this.updateBossSpawnChances();
   }
 
   public async preSptLoad(container: DependencyContainer): Promise<void> {
@@ -124,10 +127,11 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
   }
 
   private async updateBossSpawnChances(): Promise<void> {
+	const rotationData = await this.rotationService.readRotationData();
     const { selectedMap } =
       await this.rotationService.getNextUpdateTimeAndMapData();
     const bossName = "bossKnight";
-    const spawnChance = this.modConfig.goonsSpawnChance;
+    const spawnChance = rotationData.dynamicSpawnChance;
 
     for (const mapName in this.maps) {
       const mapBosses = this.maps[mapName]?.base?.BossLocationSpawn || [];
@@ -137,7 +141,8 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
 
         if (this.modConfig.debugLogs) {
           this.logger.info(
-            `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}`
+            `[Dynamic Goons] ${mapName}: Before Chance: ${mapBoss.BossChance}`,
+			`[Dynamic Goons] Before Spawn Chance to: ${mapBoss.BossChance}`
           );
         }
 
@@ -145,7 +150,8 @@ class Mod implements IPostDBLoadMod, IPreSptLoadMod {
 
         if (this.modConfig.debugLogs) {
           this.logger.info(
-            `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}`
+            `[Dynamic Goons] ${mapName}: After Chance: ${mapBoss.BossChance}`,
+			`[Dynamic Goons] After Spawn Chance to: ${mapBoss.BossChance}`
           );
         }
       }
